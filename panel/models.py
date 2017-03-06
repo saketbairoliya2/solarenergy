@@ -10,6 +10,13 @@ class Units(models.Model):
 	co_ordinates = models.ForeignKey(Coordinates, on_delete=models.CASCADE)
 	capacity = models.DecimalField(max_digits=2, decimal_places=0)
 
+	def as_dict(self):
+		return {
+			"id": self.id,
+			"capacity": self.capacity,
+			"co_ordinates": self.co_ordinates
+        	}
+
 class PowerExpected(models.Model):
 	unit = models.ForeignKey(Units, on_delete=models.CASCADE)
 	expected_dc = models.DecimalField(max_digits=8, decimal_places=3)
