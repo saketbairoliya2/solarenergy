@@ -1,13 +1,18 @@
 from django.http import HttpResponse
 from django.core import serializers
 import urllib.request
-import json
-import ast
 from django.db import transaction
 from .models import Coordinates, Units, PowerExpected, PowerActual, Performance
+import numpy as np
+from django.db.models import Q
+import json
+import ast
+import datetime
+import decimal
 
 ## ToDo- Put up logger for putting logs ##
-
+## ToDo- Put up Error handeling in place. ##
+## ToDo- Look why it is giving 0 expected Heat for Two Systems.(Mumbai(10), (3))
 def get_expected_data(request):
 	''' Makes cURL call with the metedata'''
 	AZIMUTH = 180
@@ -47,6 +52,120 @@ def update_power_expected_table(response, each_unit):
 		print("No output found in response!!")
 	return 1
 
+"""
+A function to pass time.now and call other function, for all systems installed -> 
+call normal distribution with current time, system indetifier and system capacity().
+A simulator function returns simulated data: Write the data in db against System id(FK), Date given. 
+
+from panel import jobs as a
+a.expected_energy_data()
+from panel import jobs as a
+a.simulate_energy_generation()
+
+"""
+
+
+def simulate_energy_generation():
+	today_date = datetime.datetime.now().date()
+	#today_date = datetime.datetime.strptime(str(today_date), '%Y-%m-%d').strftime('%d-%m-%Y')
+	#Use above code for making an API mentioned in PRD, commenting temporirly.
+	now_time = datetime.datetime.now().time()
+	units_installed = Units.objects.all()
+	for each_unit in units_installed:
+		simulated_dc_value = system_time_date_mapper(today_date, now_time, each_unit)
+		# Save simulated_dc_value value in db.
+		entry = PowerActual(unit=each_unit, stamp_date=today_date, actual_dc=simulated_dc_value)
+		entry.save()
+		print("{}" .format(simulated_dc_value))
+
+def system_time_date_mapper(today_date, now_time, each_unit):
+	'''
+		This will receive date, time and System ID and will return simulated value of energy in watt
+	'''
+	# 0-0, 1-0, 2-0, 3-0, 4-0, 5-0, 6-0, 
+	# 7-1000, 8-2000, 9-3000, 10-4000, 11-5000, 12-6000, 13-8000,
+	# 14-7000, 15-6000, 16-5000, 17-4000, 18-3000, 19-1000,
+	# 20-0, 21-0, 22-0, 23-0, 24-0
+	#10 * 1000
+	actual_dc = get_normal_distribution(each_unit.capacity)
+	hour = now_time.hour
+	return actual_dc[hour]
+
+def get_normal_distribution(capacity):
+	'''
+		Returns simulated value of heat based on normal distribution curve in List
+	'''
+	capacity_in_watt = capacity * 1000
+	mu = (capacity_in_watt * decimal.Decimal(.70)) #Making an approximation for mean value to be 90% of system capacity
+	sigma = mu/13 # As there are 13 numbers having data like bell curve, so making equal SD.
+	series = np.random.normal(mu, sigma, 13)
+	series = sorted(series)
+	series_inc = series[::2]
+	series_dec = series[-2::-2]
+	energy_7_to_19 = series_inc + series_dec
+	energy_0_to_6 = [0, 0, 0, 0, 0, 0, 0]
+	energy_20_to_23 = [0, 0, 0, 0]
+	daily_energy = energy_0_to_6 + energy_7_to_19 + energy_20_to_23
+	return daily_energy
+
+def update_performance_table():
+	'''
+	Steps:
+from panel import jobs as a
+a.update_performance_table()
+	1. For Given date(today), Get all 24 data points from performance_expected_table
+	2. For Today, Get all 24 data points from performance_expected tables
+	3. Check for eligiblity criteria(80 % performance) 
+		if lesser performance, make an entry in performance table.
+	'''
+	today_date = datetime.date.today()
+	now_time = datetime.datetime.now().time()
+	units_installed = Units.objects.all()
+	for each_unit in units_installed:
+		expected_power = expected_energy_data(each_unit, today_date, now_time)
+		actual_power = actual_energy_data(each_unit, today_date, now_time)
+		print(expected_power)
+		print(actual_power)
+		if (actual_power < decimal.Decimal(.80)*expected_power):
+			# Insert row in Performance table
+			p = Performance(unit=each_unit, hours=now_time, performance_date=today_date)
+			p.save()		
+
+def actual_energy_data(each_unit, today_date, now_time):
+	power_actual = PowerActual.objects.filter(Q(unit=each_unit) & Q(stamp_date=today_date))
+	hour = now_time.hour
+	actual_power_now = power_actual[hour]
+	return actual_power_now.actual_dc
+	
+
+def expected_energy_data(each_unit, date, now_time):
+	days_dict = { # Dict for month number and days in it.
+		1: 31,
+		2: 28,
+		3: 31,
+		4: 30,
+		5: 31,
+		6: 30,
+		7: 31,
+		8: 31,
+		9: 30,
+		10: 31,
+		11: 30,
+		12: 31
+	}
+	hour = now_time.hour
+	today_date = date
+	day = today_date.day
+	month = today_date.month
+	days_in_months = 0
+	for i in range(1, month):
+		days_in_months += days_dict[i]
+	
+	total_days_to_ignore_for_eval = days_in_months + (day-1)
+	total_hours_to_ignore_for_eval = total_days_to_ignore_for_eval*24
+	expected_power = PowerExpected.objects.filter(unit=each_unit)[total_hours_to_ignore_for_eval:total_hours_to_ignore_for_eval+24]
+	expected_power_now = expected_power[hour]
+	return expected_power_now.expected_dc
 
 
     
