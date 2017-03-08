@@ -5,21 +5,9 @@ from os.path import join, normpath
 from .base import *
 import debug_toolbar
 
-
-########## DEBUG CONFIGURATION
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-########## END DEBUG CONFIGURATION
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 
-
-########## EMAIL CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-########## END EMAIL CONFIGURATION
-
-
-########## DATABASE CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -30,21 +18,11 @@ DATABASES = {
         'PORT': '',
     }
 }
-########## END DATABASE CONFIGURATION
 
-
-########## TOOLBAR CONFIGURATION
-# See: http://django-debug-toolbar.readthedocs.org/en/latest/installation.html#explicit-setup
 INSTALLED_APPS += (
     'debug_toolbar',
 )
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
-
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
-# http://django-debug-toolbar.readthedocs.org/en/latest/installation.html
-INTERNAL_IPS = ('127.0.0.1',)
-########## END TOOLBAR CONFIGURATION
