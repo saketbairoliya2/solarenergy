@@ -59,3 +59,7 @@ DATABASES['default'] =  dj_database_url.config()
 #     }
 # }
 ########## END DATABASE CONFIGURATION
+
+########## SECRET CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+########## END SECRET CONFIGURATION
