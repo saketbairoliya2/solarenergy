@@ -1,10 +1,10 @@
 """Production settings and globals."""
 
 from __future__ import absolute_import
-
 from os import environ
-
 from .base import *
+import dj_database_url
+
 
 # Normally you should not import ANYTHING from Django directly
 # into your settings, but ImproperlyConfigured is an exception.
@@ -46,16 +46,18 @@ SERVER_EMAIL = EMAIL_HOST_USER
 ########## END EMAIL CONFIGURATION
 
 ########## DATABASE CONFIGURATION
-DATABASES = {
-	'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'solar_energy',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
+DATABASES['default'] =  dj_database_url.config()
+
+# DATABASES = {
+# 	'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': url.path[1:],
+#         'USER': url.username,
+#         'PASSWORD': url.password,
+#         'HOST': url.hostname,
+#         'PORT': url.port,
+#     }
+# }
 ########## END DATABASE CONFIGURATION
 
 ########## SECRET CONFIGURATION
