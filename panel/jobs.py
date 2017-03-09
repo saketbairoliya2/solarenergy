@@ -9,10 +9,13 @@ import json
 import ast
 import datetime
 import decimal
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 ## ToDo- Put up logger for putting logs ##
 ## ToDo- Put up Error handeling in place. ##
-## ToDo- Look why it is giving 0 expected Heat for Two Systems.(Mumbai(10), (3))
 def get_expected_data(request):
 	''' Makes cURL call with the metedata'''
 	AZIMUTH = 180
@@ -52,23 +55,14 @@ def update_power_expected_table(response, each_unit):
 		print("No output found in response!!")
 	return 1
 
+def simulate_energy_generation():
 """
 A function to pass time.now and call other function, for all systems installed -> 
 call normal distribution with current time, system indetifier and system capacity().
 A simulator function returns simulated data: Write the data in db against System id(FK), Date given. 
 
-from panel import jobs as a
-a.expected_energy_data()
-from panel import jobs as a
-a.simulate_energy_generation()
-
 """
-
-
-def simulate_energy_generation():
 	today_date = datetime.datetime.now().date()
-	#today_date = datetime.datetime.strptime(str(today_date), '%Y-%m-%d').strftime('%d-%m-%Y')
-	#Use above code for making an API mentioned in PRD, commenting temporirly.
 	now_time = datetime.datetime.now().time()
 	units_installed = Units.objects.all()
 	for each_unit in units_installed:
@@ -76,17 +70,12 @@ def simulate_energy_generation():
 		# Save simulated_dc_value value in db.
 		entry = PowerActual(unit=each_unit, stamp_date=today_date, actual_dc=simulated_dc_value)
 		entry.save()
-		print("{}" .format(simulated_dc_value))
+		logger.info("{}" .format(simulated_dc_value))
 
 def system_time_date_mapper(today_date, now_time, each_unit):
 	'''
 		This will receive date, time and System ID and will return simulated value of energy in watt
 	'''
-	# 0-0, 1-0, 2-0, 3-0, 4-0, 5-0, 6-0, 
-	# 7-1000, 8-2000, 9-3000, 10-4000, 11-5000, 12-6000, 13-8000,
-	# 14-7000, 15-6000, 16-5000, 17-4000, 18-3000, 19-1000,
-	# 20-0, 21-0, 22-0, 23-0, 24-0
-	#10 * 1000
 	actual_dc = get_normal_distribution(each_unit.capacity)
 	hour = now_time.hour
 	return actual_dc[hour]
@@ -111,8 +100,6 @@ def get_normal_distribution(capacity):
 def update_performance_table():
 	'''
 	Steps:
-from panel import jobs as a
-a.update_performance_table()
 	1. For Given date(today), Get all 24 data points from performance_expected_table
 	2. For Today, Get all 24 data points from performance_expected tables
 	3. Check for eligiblity criteria(80 % performance) 
