@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'o55set(ht%2_oh9zr1d=676fi@nia_o_-p+(_e7-3l^y)=)s6&'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'solarenergy.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
 
 
