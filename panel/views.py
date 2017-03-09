@@ -19,16 +19,19 @@ def details(request, panel_id):
 	try:
 		date = request.GET['date']
 	except Exception as e:
-		# In case no dates are specified, take today date.
-		date = datetime.date.today()
-		date = datetime.datetime.strptime(date, '%d-%m-%Y')
+		return JsonResponse({
+		"status": "error",
+		"data": None,
+		"message": "No date is specified"
+		})
+		
 	try:
 		validate(date)
 	except ValueError:
 		logger.error("Please enter date in DD-MM-YYYY format")
 		return JsonResponse({
 			"status": "error",
-			"data": null,
+			"data": None,
 			"message": message
 			})
 	date = datetime.datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%m-%d')
