@@ -19,9 +19,6 @@ DATABASES = {
     }
 }
 
-PGPASSWORD=root pg_dump -Fc --no-acl --no-owner -h localhost -U root solar_energy > mydb.dump
-heroku pg:push mydb.dump HEROKU_POSTGRESQL_MAGENTA --app sushi
-
 INSTALLED_APPS += (
     'debug_toolbar',
 )
