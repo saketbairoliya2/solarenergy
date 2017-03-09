@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
 
 ## ToDo- Put up logger for putting logs ##
 ## ToDo- Put up Error handeling in place. ##
-def get_expected_data(request):
+# from panel import jobs as a
+# a.get_expected_data()
+def get_expected_data():
 	''' Makes cURL call with the metedata'''
 	AZIMUTH = 180
 	ARRAY_TYPE = 1
@@ -56,12 +58,11 @@ def update_power_expected_table(response, each_unit):
 	return 1
 
 def simulate_energy_generation():
-"""
-A function to pass time.now and call other function, for all systems installed -> 
-call normal distribution with current time, system indetifier and system capacity().
-A simulator function returns simulated data: Write the data in db against System id(FK), Date given. 
-
-"""
+	"""
+	A function to pass time.now and call other function, for all systems installed -> 
+	call normal distribution with current time, system indetifier and system capacity().
+	A simulator function returns simulated data: Write the data in db against System id(FK), Date given.
+	"""
 	today_date = datetime.datetime.now().date()
 	now_time = datetime.datetime.now().time()
 	units_installed = Units.objects.all()
