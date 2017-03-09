@@ -16,5 +16,5 @@ ALLOWED_HOSTS = ['.herokuapp.com']
 
 ########## DATABASE CONFIGURATION
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
