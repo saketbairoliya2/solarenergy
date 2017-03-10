@@ -76,30 +76,30 @@ WSGI_APPLICATION = 'solarenergy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'solar_energy',
-        # 'USER': 'root',
-        # 'PASSWORD': 'root',
-        # 'HOST': 'localhost',
-        # 'PORT': '',
-    }
-}
-
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
-
 # DATABASES = {
 #     'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': 'solar_energy',
-#             'USER': 'root',
-#             'PASSWORD': 'root',
-#             'HOST': 'localhost',
-#             'PORT': '',
+#         # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         # 'NAME': 'solar_energy',
+#         # 'USER': 'root',
+#         # 'PASSWORD': 'root',
+#         # 'HOST': 'localhost',
+#         # 'PORT': '',
 #     }
 # }
+
+# db_from_env = dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
+
+DATABASES = {
+    'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'solar_energy',
+            'USER': 'root',
+            'PASSWORD': 'root',
+            'HOST': 'localhost',
+            'PORT': '',
+    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
