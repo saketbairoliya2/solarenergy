@@ -90,6 +90,17 @@ DATABASES = {
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
+# DATABASES = {
+#     'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': 'solar_energy',
+#             'USER': 'root',
+#             'PASSWORD': 'root',
+#             'HOST': 'localhost',
+#             'PORT': '',
+#     }
+# }
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -123,4 +134,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'solarenergysaket@gmail.com'
+EMAIL_HOST_PASSWORD = 'saket123'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 

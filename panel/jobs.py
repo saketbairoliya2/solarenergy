@@ -69,6 +69,7 @@ def simulate_energy_generation():
 	for each_unit in units_installed:
 		simulated_dc_value = system_time_date_mapper(today_date, now_time, each_unit)
 		# Save simulated_dc_value value in db.
+		print(simulated_dc_value)
 		entry = PowerActual(unit=each_unit, stamp_date=today_date, actual_dc=simulated_dc_value)
 		entry.save()
 		logger.info("{}" .format(simulated_dc_value))
@@ -114,7 +115,7 @@ def update_performance_table():
 		actual_power = actual_energy_data(each_unit, today_date, now_time)
 		print(expected_power)
 		print(actual_power)
-		if (actual_power < decimal.Decimal(.80)*expected_power):
+		if (actual_power == decimal.Decimal(.80)*expected_power):
 			# Insert row in Performance table
 			p = Performance(unit=each_unit, hours=now_time, performance_date=today_date)
 			p.save()		
