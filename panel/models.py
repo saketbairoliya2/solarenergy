@@ -19,7 +19,7 @@ class Units(models.Model):
 
 class PowerExpected(models.Model):
 	unit = models.ForeignKey(Units, on_delete=models.CASCADE)
-	expected_dc = models.DecimalField(max_digits=8, decimal_places=3)
+	expected_dc = models.TextField(null=True)
 
 
 class PowerActual(models.Model):
