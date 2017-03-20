@@ -3,6 +3,7 @@ from django.core import serializers
 import urllib.request
 from django.db import transaction
 from .models import Coordinates, Units, PowerExpected, PowerActual, Performance
+from .utils import string_json_mapper
 import numpy as np
 from django.db.models import Q
 from datetime import date
@@ -60,16 +61,6 @@ def update_power_expected_table(response, each_unit):
 		print("No output found in response!!")
 	return 1
 
-
-def print_model_data():
-	jsonDec = json.decoder.JSONDecoder()
-	allModels = PowerExpected.objects.all()
-	for myModel in allModels:
-		myPythonList = jsonDec.decode(myModel.expected_dc)
-		print(type(myPythonList))
-		print(myPythonList)
-
-
 def simulate_energy_generation():
 	"""
 	A function to pass time.now and call other function, for all systems installed -> 
@@ -102,10 +93,11 @@ def simulate_energy_days_generation():
 	This is just for simulating data for days.
 	"""
 	feb_date = date(2017, 2, 14)
-	march_date = date(2017, 3, 15)
+	march_date = date(2017, 3, 20)
 
 	for dt in rrule(DAILY, dtstart=feb_date, until=march_date):
 		date_now = dt.strftime("%Y-%m-%d")
+		date_now = datetime.datetime.strptime(date_now, "%Y-%m-%d")
 		units_installed = Units.objects.all()
 
 		for each_unit in units_installed:
@@ -166,23 +158,31 @@ def update_performance_table():
 
 def update_performance_table_sim():
 	feb_date = date(2017, 2, 14)
-	march_date = date(2017, 3, 15)
+	march_date = date(2017, 3, 20)
 	units_installed = Units.objects.all()
 
 	for dt in rrule(DAILY, dtstart=feb_date, until=march_date):
 		date_now = dt.strftime("%Y-%m-%d")
-		time = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-		for a_time in time:
-			for each_unit in units_installed:
-				expected_power = expected_power_sim(each_unit, date_now)
-				actual_power = actual_power_sim(each_unit, date_now)
-				print(expected_power)
-				print(actual_power)
+		date_now = datetime.datetime.strptime(date_now, "%Y-%m-%d")
+	
+		# for a_time in time:
+		for each_unit in units_installed:
+			expected_power = expected_power_sim(each_unit, date_now)
+			actual_power = list(actual_power_sim(each_unit, date_now))
+			time = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+			for each in time:
+				print(type(actual_power[each]))
+				print(type(expected_power[each]))
+				if (actual_power[each] < decimal.Decimal(.80)*decimal.Decimal(expected_power[each])):
+					# Insert row in Performance table
+					p = Performance(unit=each_unit, hours=each, performance_date=date_now)
+					p.save()
 
 
 
 def actual_power_sim(each_unit, date_now):
-	power_actual = PowerActual.objects.filter(Q(unit=each_unit) & Q(stamp_date=today_date))
+	power_actual = PowerActual.objects.values_list('actual_dc', flat=True).filter(Q(unit=each_unit) & Q(stamp_date=date_now))
+	#print(power_actual)
 	return power_actual
 
 def expected_power_sim(each_unit, date_now):
@@ -201,7 +201,8 @@ def expected_power_sim(each_unit, date_now):
 		12: 31
 	}
 	today_date = date_now
-	print("{} today date is in format {}" .format(today_date, type(today_date)))
+	# print(today_date)
+	# print("{} today date is in format {}" .format(today_date, type(today_date)))
 	day = today_date.day
 	month = today_date.month
 	days_in_months = 0
@@ -210,8 +211,11 @@ def expected_power_sim(each_unit, date_now):
 	
 	total_days_to_ignore_for_eval = days_in_months + (day-1)
 	total_hours_to_ignore_for_eval = total_days_to_ignore_for_eval*24
-	expected_power = PowerExpected.objects.filter(unit=each_unit)[total_hours_to_ignore_for_eval:total_hours_to_ignore_for_eval+24]
-	return expected_power_now
+	expected_power = PowerExpected.objects.filter(unit=each_unit).values('expected_dc')
+	expected_power = expected_power[0]['expected_dc']
+	expected_power = string_json_mapper(expected_power)
+	expected_power_exact = expected_power[total_hours_to_ignore_for_eval:total_hours_to_ignore_for_eval+24]
+	return expected_power_exact
 
 
 def actual_energy_data(each_unit, today_date, now_time):

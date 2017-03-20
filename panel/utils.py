@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from .models import Performance, Units
 from django.db.models import Q
 import logging
+import simplejson as json
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -30,3 +31,8 @@ def send_daily_mail():
 		# print(str(performance))
 		# print(type(performance)) 
 		#send_mail('Daily report', performance, 'solarenergysaket@gmail.com', ['saketbairoliya2@gmail.com'], fail_silently=False)
+
+def string_json_mapper(data):
+	json_dec = json.decoder.JSONDecoder()
+	list_data = json_dec.decode(data)
+	return list_data
