@@ -1,6 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from django.core.mail import send_mail
-from .models import Units, Performance
+from panel.models import Units, Performance
 from datetime import date
 import datetime
 from django.http import HttpResponse
@@ -19,7 +19,7 @@ BASE_URL = "https://solarenergy.herokuapp.com/panel/"
 # def timed_job():
 # 	logger.info('This job is run every two minutes.')
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=14, minute=54)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=15, minute=0)
 def scheduled_job():
 	logger.info('This job is run every day at 8:30pm.')
 	today_date = datetime.datetime.now().date()
