@@ -19,7 +19,7 @@ def timed_job():
 	subject = "Demo Mail"
 	send_mail(subject, str(response), MAIL_FROM, MAIL_TO, fail_silently=False)
 	logger.info('Mail Sent to user')
-    logger.info('This job is run every three minutes.')
+	logger.info('This job is run every two minutes.')
 
 # @sched.scheduled_job('cron', day_of_week='mon-fri', hour=20)
 # def scheduled_job():
