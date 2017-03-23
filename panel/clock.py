@@ -1,5 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from django.core.mail import send_mail
+import urllib.request
 import logging
 
 # Get an instance of a logger
