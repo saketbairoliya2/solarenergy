@@ -6,12 +6,16 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.core.mail import send_mail
 import urllib.request
+from datetime import date
+from django.http import HttpResponse
 import datetime
 import logging
+import json
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+BASE_URL = "https://solarenergy.herokuapp.com/panel/"
 MAIL_FROM = "solarenergysaket@gmail.com"
 MAIL_TO = ['saketbairoliya2@gmail.com']
 SUBJECT = "Daily Report"
@@ -61,22 +65,28 @@ def send_daily_mail(request, panel_id):
 
 	if date is not None:
 		# Call url for getting data for the given date and panel.
-		base_url = "https://solarenergy.herokuapp.com/panel/"
-		url = base_url + str(panel_id) + '?date=' + date
+		url = BASE_URL + str(panel_id) + '?date=' + date
 		request = urllib.request.Request(url)
 		response = urllib.request.urlopen(request)
 		response = response.read().decode('utf-8')
 		subject = SUBJECT + ' for panel ' + str(panel_id)
 		send_mail(subject, str(response), MAIL_FROM, MAIL_TO, fail_silently=False)
 		logger.info('Mail Sent to user')
-		
+
 	return JsonResponse({
 		"status": "success",
 		"data": 'preference',
 		"message": 'Mail sent'
 		})
 
-
+def prepare_daily_mail(request):
+	today_date = datetime.datetime.now().date()
+	date = today_date.strftime('%d-%m-%Y')
+	units = Units.objects.all()
+	for unit in units:
+		url = BASE_URL + str(unit.id) + "/mail?date=" + str(date)
+		request = urllib.request.Request(url)
+	return HttpResponse(json.dumps({'success': 'true'}), content_type="application/json")
 
 
     
