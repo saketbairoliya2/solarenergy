@@ -68,7 +68,8 @@ def send_daily_mail(request, panel_id):
 		response = response.read().decode('utf-8')
 		subject = SUBJECT + ' for panel ' + str(panel_id)
 		send_mail(subject, str(response), MAIL_FROM, MAIL_TO, fail_silently=False)
-	
+		logger.info('Mail Sent to user')
+		
 	return JsonResponse({
 		"status": "success",
 		"data": 'preference',
