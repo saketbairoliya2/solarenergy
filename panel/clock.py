@@ -15,7 +15,7 @@ BASE_URL = "https://solarenergy.herokuapp.com/panel/call"
 # def timed_job():
 # 	logger.info('This job is run every two minutes.')
 
-@sched.scheduled_job('cron', day_of_week='mon-sun', hour=15, minute=35)
+@sched.scheduled_job('cron', day_of_week='mon-sun', hour=21, minute=16)
 def scheduled_job():
 	logger.info('This job is run every day at 8:30pm.')
 	url = BASE_URL
