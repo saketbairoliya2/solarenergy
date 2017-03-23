@@ -30,4 +30,4 @@ class PowerActual(models.Model):
 class Performance(models.Model):
 	unit = models.ForeignKey(Units)
 	performance_date = models.DateField() 
-	hours = models.TimeField(auto_now=False)
+	hours = models.IntegerField(default=25)

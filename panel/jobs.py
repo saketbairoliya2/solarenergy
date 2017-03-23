@@ -18,7 +18,6 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-## ToDo- Put up logger for putting logs ##
 ## ToDo- Put up Error handeling in place. ##
 # from panel import jobs as a
 # a.get_expected_data()
@@ -61,56 +60,33 @@ def update_power_expected_table(response, each_unit):
 		print("No output found in response!!")
 	return 1
 
-def simulate_energy_generation():
+def simulate_energy_days_generation():
 	"""
+	This is just for simulating data for days.
 	A function to pass time.now and call other function, for all systems installed -> 
 	call normal distribution with current time, system indetifier and system capacity().
 	A simulator function returns simulated data: Write the data in db against System id(FK), Date given.
 	"""
-	today_date = datetime.datetime.now().date()
-	#now_time = datetime.datetime.now().time()
-	units_installed = Units.objects.all()
-	for each_unit in units_installed:
-		# simulated_dc_value = system_time_date_mapper(today_date, now_time, each_unit)
-		simulated_dc_value = system_date_mapper(today_date, each_unit)
-		# Save simulated_dc_value value in db.
-		print(simulated_dc_value)
-		for each_power in simulated_dc_value:
-			entry = PowerActual(unit=each_unit, stamp_date=today_date, actual_dc=each_power)
-		#entry.save()
-		logger.info("{}" .format(simulated_dc_value))
+	mar_date = date(2017, 3, 20)
+	april_date = date(2017, 4, 20)
 
-def system_time_date_mapper(today_date, now_time, each_unit):
-	'''
-		This will receive date, time and System ID and will return simulated value of energy in watt
-	'''
-	actual_dc = get_normal_distribution(each_unit.capacity)
-	hour = now_time.hour
-	return actual_dc[hour]
-
-def simulate_energy_days_generation():
-	"""
-	This is just for simulating data for days.
-	"""
-	feb_date = date(2017, 2, 14)
-	march_date = date(2017, 3, 20)
-
-	for dt in rrule(DAILY, dtstart=feb_date, until=march_date):
+	for dt in rrule(DAILY, dtstart=mar_date, until=april_date):
 		date_now = dt.strftime("%Y-%m-%d")
 		date_now = datetime.datetime.strptime(date_now, "%Y-%m-%d")
 		units_installed = Units.objects.all()
 
 		for each_unit in units_installed:
-			# simulated_dc_value = system_time_date_mapper(today_date, now_time, each_unit)
-			simulated_dc_value = system_date_mapper(each_unit)
+			simulated_dc_value = system_date_mapper(date_now, each_unit)
 			# Save simulated_dc_value value in db.
-			print(simulated_dc_value)
-			for each_power in simulated_dc_value:
-				entry = PowerActual(unit=each_unit, stamp_date=date_now, actual_dc=each_power)
-				entry.save()
-			logger.info("{} Data for Date {} populated" .format(simulated_dc_value, date_now))
+			result = [save_power_actual(each_unit, date_now, each_power) for each_power in simulated_dc_value if simulated_dc_value]	
+			logger.info("Data for Date {}  and system {} populated" .format(date_now, each_unit))
 
-def system_date_mapper(each_unit):
+def save_power_actual(each_unit, date_now, each_power):
+	entry = PowerActual(unit=each_unit, stamp_date=date_now, actual_dc=each_power)
+	entry.save()
+
+
+def system_date_mapper(today_date, each_unit):
 	'''
 		This will receive date, time and System ID and will return simulated value of energy in watt
 	'''
@@ -137,55 +113,40 @@ def get_normal_distribution(capacity):
 def update_performance_table():
 	'''
 	Steps:
-	1. For Given date(today), Get all 24 data points from performance_expected_table
-	2. For Today, Get all 24 data points from performance_expected tables
+	1. For Given date, Get all 24 data points from power_expected table
+	2. For Given date, Get all 24 data points from power_actual table
 	3. Check for eligiblity criteria(80 % performance) 
 		if lesser performance, make an entry in performance table.
 	'''
-	# today_date = datetime.date.today()
-	# now_time = datetime.datetime.now().time()
 
-	units_installed = Units.objects.all()
-	for each_unit in units_installed:
-		expected_power = expected_energy_data(each_unit, date_now, a_time)
-		actual_power = actual_energy_data(each_unit, date_now, a_time)
-		print(expected_power)
-		print(actual_power)
-		if (actual_power < decimal.Decimal(.80)*expected_power):
-			# Insert row in Performance table
-			p = Performance(unit=each_unit, hours=now_time, performance_date=today_date)
-			p.save()	
-
-def update_performance_table_sim():
-	feb_date = date(2017, 2, 14)
-	march_date = date(2017, 3, 20)
+	mar_date = date(2017, 3, 20)
+	april_date = date(2017, 4, 20)
 	units_installed = Units.objects.all()
 
-	for dt in rrule(DAILY, dtstart=feb_date, until=march_date):
+	for dt in rrule(DAILY, dtstart=mar_date, until=april_date):
 		date_now = dt.strftime("%Y-%m-%d")
 		date_now = datetime.datetime.strptime(date_now, "%Y-%m-%d")
-	
-		# for a_time in time:
-		for each_unit in units_installed:
-			expected_power = expected_power_sim(each_unit, date_now)
-			actual_power = list(actual_power_sim(each_unit, date_now))
-			time = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-			for each in time:
-				print(type(actual_power[each]))
-				print(type(expected_power[each]))
-				if (actual_power[each] < decimal.Decimal(.80)*decimal.Decimal(expected_power[each])):
-					# Insert row in Performance table
-					p = Performance(unit=each_unit, hours=each, performance_date=date_now)
-					p.save()
 
+		result = [performance_task(each_unit, date_now) for each_unit in units_installed if units_installed]
+		print(result)
 
+def performance_task(each_unit, date_now):
+	exp_power = expected_power(each_unit, date_now)
+	act_power = list(actual_power(each_unit, date_now))
+	time = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+	for each in time:
+		print(type(act_power[each]))
+		print(type(exp_power[each]))
+		if (act_power[each] < decimal.Decimal(.80)*decimal.Decimal(exp_power[each])):
+			# Insert row in Performance table
+			p = Performance(unit=each_unit, hours=each, performance_date=date_now)
+			p.save()
 
-def actual_power_sim(each_unit, date_now):
+def actual_power(each_unit, date_now):
 	power_actual = PowerActual.objects.values_list('actual_dc', flat=True).filter(Q(unit=each_unit) & Q(stamp_date=date_now))
-	#print(power_actual)
 	return power_actual
 
-def expected_power_sim(each_unit, date_now):
+def expected_power(each_unit, date_now):
 	days_dict = { # Dict for month number and days in it.
 		1: 31,
 		2: 28,
@@ -201,8 +162,6 @@ def expected_power_sim(each_unit, date_now):
 		12: 31
 	}
 	today_date = date_now
-	# print(today_date)
-	# print("{} today date is in format {}" .format(today_date, type(today_date)))
 	day = today_date.day
 	month = today_date.month
 	days_in_months = 0
@@ -216,54 +175,4 @@ def expected_power_sim(each_unit, date_now):
 	expected_power = string_json_mapper(expected_power)
 	expected_power_exact = expected_power[total_hours_to_ignore_for_eval:total_hours_to_ignore_for_eval+24]
 	return expected_power_exact
-
-
-def actual_energy_data(each_unit, today_date, now_time):
-	power_actual = PowerActual.objects.filter(Q(unit=each_unit) & Q(stamp_date=today_date))
-	#hour = now_time.hour
-	hour = now_time
-	actual_power_now = power_actual[hour]
-	return actual_power_now.actual_dc
-	
-
-def expected_energy_data(each_unit, date, now_time):
-	days_dict = { # Dict for month number and days in it.
-		1: 31,
-		2: 28,
-		3: 31,
-		4: 30,
-		5: 31,
-		6: 30,
-		7: 31,
-		8: 31,
-		9: 30,
-		10: 31,
-		11: 30,
-		12: 31
-	}
-	#hour = now_time.hour
-	hour = now_time
-	today_date = date
-	print(today_date)
-	day = today_date.day
-	month = today_date.month
-	days_in_months = 0
-	for i in range(1, month):
-		days_in_months += days_dict[i]
-	
-	total_days_to_ignore_for_eval = days_in_months + (day-1)
-	total_hours_to_ignore_for_eval = total_days_to_ignore_for_eval*24
-	expected_power = PowerExpected.objects.filter(unit=each_unit)[total_hours_to_ignore_for_eval:total_hours_to_ignore_for_eval+24]
-	expected_power_now = expected_power[hour]
-	return expected_power_now.expected_dc
-
-
-    
-    
-    
-    
-    
-    
-    
-    
     
