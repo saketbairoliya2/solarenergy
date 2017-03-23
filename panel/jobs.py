@@ -177,4 +177,5 @@ def expected_power(each_unit, date_now):
 	return expected_power_exact
 
 # A Scheduler for sending mail to each panel for the given date at 8 PM IST.
+
     
