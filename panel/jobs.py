@@ -175,4 +175,6 @@ def expected_power(each_unit, date_now):
 	expected_power = string_json_mapper(expected_power)
 	expected_power_exact = expected_power[total_hours_to_ignore_for_eval:total_hours_to_ignore_for_eval+24]
 	return expected_power_exact
+
+# A Scheduler for sending mail to each panel for the given date at 8 PM IST.
     

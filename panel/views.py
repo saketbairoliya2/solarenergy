@@ -4,12 +4,17 @@ from .utils import validate
 from django.db.models import Q
 from django.http import JsonResponse
 from django.core import serializers
+from django.core.mail import send_mail
+import urllib.request
 import datetime
 import logging
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+MAIL_FROM = "solarenergysaket@gmail.com"
+MAIL_TO = ['saketbairoliya2@gmail.com']
+SUBJECT = "Daily Report"
 
 def index(request):
     return HttpResponse("At panel Index")
@@ -44,6 +49,31 @@ def details(request, panel_id):
 		"message": None
 		})
 
+def send_daily_mail(request, panel_id):
+	try:
+		date = request.GET['date']
+	except Exception as e:
+		return JsonResponse({
+		"status": "error",
+		"data": None,
+		"message": "No date is specified"
+		})
+
+	if date is not None:
+		# Call url for getting data for the given date and panel.
+		base_url = "https://solarenergy.herokuapp.com/panel/"
+		url = base_url + str(panel_id) + '?date=' + date
+		request = urllib.request.Request(url)
+		response = urllib.request.urlopen(request)
+		response = response.read().decode('utf-8')
+		subject = SUBJECT + ' for panel ' + str(panel_id)
+		send_mail(subject, str(response), MAIL_FROM, MAIL_TO, fail_silently=False)
+	
+	return JsonResponse({
+		"status": "success",
+		"data": 'preference',
+		"message": 'Mail sent'
+		})
 
 
 
