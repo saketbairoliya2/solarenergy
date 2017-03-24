@@ -79,7 +79,7 @@ def send_daily_mail(request, panel_id):
 		"message": 'Mail sent'
 		})
 
-def prepare_daily_mail():
+def prepare_daily_mail(request):
 	today = date.today()
 	#performances = PowerActual.objects.filter(stamp_date__contains=today).values('unit', 'actual_dc')
 	performances = Performance.objects.filter(performance_date__contains=today).values('unit', 'hours')
