@@ -81,15 +81,16 @@ def send_daily_mail(request, panel_id):
 
 def prepare_daily_mail(request):
 	today_date = datetime.datetime.now().date()
-	date = today_date.strftime('%d-%m-%Y')
-	units = Units.objects.all()
-	for unit in units:
-		url = BASE_URL + str(unit.id) + "/mail?date=" + str(date)
-		request = urllib.request.Request(url)
-		response = urllib.request.urlopen(request)
-		response = response.read().decode('utf-8')
-		logger.info(response)
-	return HttpResponse(json.dumps({'success': 'true'}), content_type="application/json")
+	performances = Performance.objects.filter(Q(performance_date=date)).values('unit', 'hours')
+	subject = SUBJECT + ' for all panels '
+	send_mail(subject, str(list(performances)), MAIL_FROM, MAIL_TO, fail_silently=False)
+	
+	return JsonResponse({
+		"status": "success",
+		"data": list(performances),
+		"message": None
+	})
+
 
 
     
