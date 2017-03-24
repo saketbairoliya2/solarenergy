@@ -86,6 +86,9 @@ def prepare_daily_mail(request):
 	for unit in units:
 		url = BASE_URL + str(unit.id) + "/mail?date=" + str(date)
 		request = urllib.request.Request(url)
+		response = urllib.request.urlopen(request)
+		response = response.read().decode('utf-8')
+		logger.info(response)
 	return HttpResponse(json.dumps({'success': 'true'}), content_type="application/json")
 
 
