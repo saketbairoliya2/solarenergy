@@ -79,10 +79,12 @@ def send_daily_mail(request, panel_id):
 		"message": 'Mail sent'
 		})
 
-def prepare_daily_mail(request):
-	today_date = datetime.datetime.now().date()
-	performances = Performance.objects.filter(Q(performance_date=date)).values('unit', 'hours')
+def prepare_daily_mail():
+	today = date.today()
+	#performances = PowerActual.objects.filter(stamp_date__contains=today).values('unit', 'actual_dc')
+	performances = Performance.objects.filter(performance_date__contains=today).values('unit', 'hours')
 	subject = SUBJECT + ' for all panels '
+	print(list(performances))
 	send_mail(subject, str(list(performances)), MAIL_FROM, MAIL_TO, fail_silently=False)
 	
 	return JsonResponse({
