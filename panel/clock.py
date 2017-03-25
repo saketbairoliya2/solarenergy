@@ -45,7 +45,7 @@ def scheduled_job():
 sched.start()
 
 def job():
-    logger.info('This job is run every day at 8:00pm.')
+	logger.info('This job is run every day at 8:00pm.')
 	url = BASE_URL
 	request = urllib.request.Request(url)
 	response = urllib.request.urlopen(request)
