@@ -1,4 +1,5 @@
 from .models import Units, PowerExpected, PowerActual, Performance
+from django.shortcuts import render
 from django.http import HttpResponse
 from .utils import validate
 from django.db.models import Q
@@ -21,7 +22,7 @@ MAIL_TO = ['saketbairoliya2@gmail.com']
 SUBJECT = "Daily Report"
 
 def index(request):
-    return HttpResponse("You are at panel index")
+    return render(request, 'panel/index.html')
 
 def details(request, panel_id):
 	message = "Please enter date in DD-MM-YYYY format"

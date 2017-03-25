@@ -108,7 +108,6 @@ def get_normal_distribution(capacity):
 	energy_0_to_6 = [0, 0, 0, 0, 0, 0, 0]
 	energy_20_to_23 = [0, 0, 0, 0]
 	daily_energy = energy_0_to_6 + energy_7_to_19 + energy_20_to_23
-	print(daily_energy)
 	return daily_energy
 
 def update_performance_table():
