@@ -1,13 +1,13 @@
-from django.http import HttpResponse
 from .models import Units, PowerExpected, PowerActual, Performance
+from django.http import HttpResponse
 from .utils import validate
 from django.db.models import Q
 from django.http import JsonResponse
 from django.core import serializers
 from django.core.mail import send_mail
-import urllib.request
 from datetime import date
 from django.http import HttpResponse
+import urllib.request
 import datetime
 import logging
 import json
@@ -21,7 +21,7 @@ MAIL_TO = ['saketbairoliya2@gmail.com']
 SUBJECT = "Daily Report"
 
 def index(request):
-    return HttpResponse("At panel Index")
+    return HttpResponse("You are at panel index")
 
 def details(request, panel_id):
 	message = "Please enter date in DD-MM-YYYY format"
