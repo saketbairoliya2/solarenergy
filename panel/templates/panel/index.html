@@ -1,4 +1,31 @@
-<h4>Units installed IDs are: 4, 5, 6 respectively.</h4>
-<h4>API for sending Individual mails: https://solarenergy.herokuapp.com/panel/unit_id/mail?date=dd-mm-yyyy</h4>
-<p>I’ve stored sample data from date 20th March 2017 to 20th April, 2017</p>
-
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>SolarEnergy Estimator</title>
+      <!--Import Google Icon Font-->
+      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!-- Compiled and minified CSS -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+      <!-- Compiled and minified JavaScript -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+   </head>
+   <body>
+   	<div class="container">
+      <h1>Document</h1>
+      <div class="section">
+         <p>This application have got demo data for units with IDs: 4, 5, 6</p>
+         <p>API for accessing Performance data for individual system follows this style: </p><a href="#">https://solarenergy.herokuapp.com/panel/{unit_id}?date={dd-mm-yyyy}</a>
+         <p>API for sending mails for a given unit follows this style:</p> <a href="#">https://solarenergy.herokuapp.com/panel/{unit_id}/mail?date={dd-mm-yyyy}</a>
+         <p>Note: Acceptable date format of making request is dd-mm-yyyy</p>
+         <p>Further a mail server is configured to send mail at 8 PM to recipents of mail(Both of the paramaaters can be cahnged in code as and when needed)</p>
+      </div>
+      <div class="divider"></div>
+      <div class="section">
+         <p> Database as of now has got data from date 20-03-2107 till 20-04-2017 for testing</p>
+      </div>
+     </div>
+   </body>
+</html>
